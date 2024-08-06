@@ -13,6 +13,11 @@ class GertecGs300 {
     return GertecResponse.fromJson(plat ?? '{}');
   }
 
+  Future<GertecResponse> startScan() async {
+    return GertecResponse.fromJson(
+        await GertecGs300Platform.instance.startScan() ?? '{}');
+  }
+
   /// Prints the provided text.
   Future<GertecResponse> printText(GertecText textObject) async {
     return GertecResponse.fromJson(

@@ -79,6 +79,11 @@ class MethodChannelGertecGs300 extends GertecGs300Platform {
   }
 
   @override
+  Future<String?> startScan() async {
+    return await methodChannel.invokeMethod('START_SCAN');
+  }
+
+  @override
   Future<String?> printerState() async {
     return await methodChannel.invokeMethod('PRINTER_STATE');
   }

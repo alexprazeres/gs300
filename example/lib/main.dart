@@ -81,6 +81,11 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       ElevatedButton(
                           onPressed: () async {
+                            await _gertecPrinterPlugin.startScan();
+                          },
+                          child: const Text('Scanner')),
+                      ElevatedButton(
+                          onPressed: () async {
                             await _gertecPrinterPlugin.printQrcode(
                                 text: 'EU AMO FLUTTER', align: 20, width: 100);
                           },
