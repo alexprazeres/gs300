@@ -116,22 +116,22 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                try {
-                    consulta = new ArrayList < String > ();
-                    if (SubLcdHelper.getInstance() != null){
-                        SubLcdHelper.getInstance().sendScan();
-                    }
-                    cmdflag = CMD_PROTOCOL_START_SCAN;
-                    mHandler.sendEmptyMessageDelayed(MSG_REFRESH_SHOWRESULT, 300);
-                    sendScanStatusImage("READY");
-                } catch(NullPointerException e){
-                    e.printStackTrace();
-                    showToast("Erro ao capturar SCAN"+e.getMessage());
-                } catch (SubLcdException e) {
-                    showToast("ERRO AO iniciar scan");
-                    SubLcdHelper.getInstance().release();
-                    e.printStackTrace();
-                }
+                // try {
+                //     consulta = new ArrayList < String > ();
+                //     if (SubLcdHelper.getInstance() != null){
+                //         SubLcdHelper.getInstance().sendScan();
+                //     }
+                //     cmdflag = CMD_PROTOCOL_START_SCAN;
+                //     mHandler.sendEmptyMessageDelayed(MSG_REFRESH_SHOWRESULT, 300);
+                     sendScanStatusImage("READY");
+                // } catch(NullPointerException e){
+                //     e.printStackTrace();
+                //     showToast("Erro ao capturar SCAN"+e.getMessage());
+                // } catch (SubLcdException e) {
+                //     showToast("ERRO AO iniciar scan");
+                //     SubLcdHelper.getInstance().release();
+                //     e.printStackTrace();
+                // }
             }
         });
     }
@@ -249,14 +249,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                             Resources res = context.getResources();
                             int id = R.drawable.qrcode_ready; 
                             Bitmap b = BitmapFactory.decodeResource(res, id);
-                            
-                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(b, 90));
+                            showToast(String.valueOf(b.getHeight()) + "x" + String.valueOf(b.getWidth()));
+                            //SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
+                            SubLcdHelper.getInstance().sendBitmap(b);
                         } catch (Exception e) {
                             e.printStackTrace();
                             showToast("Erro ao Exibir ImagemX"+e.getMessage());
                         }
                     }
                 }, 500);
+                break;
             default:
                 showToast(type);    
                 break;        
