@@ -203,48 +203,48 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     }
 
     public void sendScanStatusImage(String type){
-        
-        switch(type){
-            case "SUCCESS":
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Bitmap bpSuccess = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_success);
-                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpSuccess, 90));
-                        } catch (SubLcdException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, 500);
-                break;
-            case "ERROR":
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Bitmap bpError = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_error);
-                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpError, 90));
-                        } catch (SubLcdException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, 500);
-                break;    
-            case "READY":
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Bitmap bpReady = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
-                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
-                        } catch (SubLcdException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, 500);
-                break;        
-        }
+        Systemt.out.println("iniciar");
+        // switch(type){
+        //     case "SUCCESS":
+        //         handler.postDelayed(new Runnable() {
+        //             @Override
+        //             public void run() {
+        //                 try {
+        //                     Bitmap bpSuccess = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_success);
+        //                     SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpSuccess, 90));
+        //                 } catch (SubLcdException e) {
+        //                     e.printStackTrace();
+        //                 }
+        //             }
+        //         }, 500);
+        //         break;
+        //     case "ERROR":
+        //         handler.postDelayed(new Runnable() {
+        //             @Override
+        //             public void run() {
+        //                 try {
+        //                     Bitmap bpError = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_error);
+        //                     SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpError, 90));
+        //                 } catch (SubLcdException e) {
+        //                     e.printStackTrace();
+        //                 }
+        //             }
+        //         }, 500);
+        //         break;    
+        //     case "READY":
+        //         handler.postDelayed(new Runnable() {
+        //             @Override
+        //             public void run() {
+        //                 try {
+        //                     Bitmap bpReady = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
+        //                     SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
+        //                 } catch (SubLcdException e) {
+        //                     e.printStackTrace();
+        //                 }
+        //             }
+        //         }, 500);
+        //         break;        
+        // }
     }
 
     public void sendReadyStatus(){
