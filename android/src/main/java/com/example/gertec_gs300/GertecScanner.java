@@ -248,6 +248,9 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         try {
                             Bitmap bpReady = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
                             SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                            showToast("Erro ao Exibir ImagemX"+e.getMessage());
                         } catch(NullPointerException e){
                             e.printStackTrace();
                             showToast("Erro ao Exibir Imagem"+e.getMessage());
