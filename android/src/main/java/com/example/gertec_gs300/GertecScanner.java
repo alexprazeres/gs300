@@ -157,11 +157,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     public void sendScanResult(){
          mainHandler.post(() -> {
-            try {
-                methodChannel.invokeMethod("onListChanged", consulta);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            methodChannel.invokeMethod("onListChanged", consulta);
         });
     }
 
