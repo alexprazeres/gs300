@@ -247,7 +247,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                     public void run() {
                         try {
                             Resources res = context.getResources();
-                            int id = R.drawable.qrcode_ready; 
+                            int id = R.drawable.gertec4; 
                             Bitmap b = BitmapFactory.decodeResource(res, id);
                             showToast(String.valueOf(b.getHeight()) + "x" + String.valueOf(b.getWidth()));
                             //SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
