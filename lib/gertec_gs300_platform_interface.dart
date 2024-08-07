@@ -51,6 +51,14 @@ abstract class GertecGs300Platform extends PlatformInterface {
     throw UnimplementedError('startCan() has not been implemented.');
   }
 
+  Future<String?> getScanResult() {
+    throw UnimplementedError('startCan() has not been implemented.');
+  }
+
+  Future<String?> sendScanStatusImage(String type) {
+    throw UnimplementedError('sendScanStatusImage() has not been implemented.');
+  }
+
   Future<String?> printBarCode(
       {required int width,
       required int height,

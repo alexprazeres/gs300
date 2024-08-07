@@ -18,6 +18,15 @@ class GertecGs300 {
         await GertecGs300Platform.instance.startScan() ?? '{}');
   }
 
+  Future<String?> getScanResult() async {
+    return await GertecGs300Platform.instance.getScanResult() ?? "";
+  }
+
+  Future<GertecResponse> sendScanStatusImage(String type) async {
+    return GertecResponse.fromJson(
+        await GertecGs300Platform.instance.sendScanStatusImage(type) ?? '{}');
+  }
+
   /// Prints the provided text.
   Future<GertecResponse> printText(GertecText textObject) async {
     return GertecResponse.fromJson(

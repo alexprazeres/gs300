@@ -42,6 +42,17 @@ class _MyAppState extends State<MyApp> {
     // });
   }
 
+  void listenChange() {
+    const methodChannel = MethodChannel('gertec/gs300');
+    _gertecPrinterPlugin.getScanResult();
+    methodChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onListChanged') {
+        print("chegou??");
+        print(call.arguments);
+      }
+    });
+  }
+
   // Platform messages are asynchronous, so we initialize in an async method.
 
   @override
@@ -82,6 +93,7 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                           onPressed: () async {
                             await _gertecPrinterPlugin.startScan();
+                            listenChange();
                           },
                           child: const Text('Scanner')),
                       ElevatedButton(

@@ -39,7 +39,7 @@ public class GertecGs300Plugin implements FlutterPlugin, MethodCallHandler {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "gertec/gs300");
     channel.setMethodCallHandler(this);
     printer = new GertecPrinter(context,AP80PrintHelper.getInstance());
-    scanner = new GertecScanner(context);
+    scanner = new GertecScanner(context, channel);
 
   }
 
@@ -135,6 +135,17 @@ public class GertecGs300Plugin implements FlutterPlugin, MethodCallHandler {
           scanner.startScan();
           result.success(new ReturnObject("OK", "", true).toJson());
           break;
+
+     case "STATUS_SCAN":
+          String arg = call.argument("status");
+          scanner.sendScanStatusImage(arg);
+          result.success(new ReturnObject("OK", "", true).toJson());
+          break; 
+
+      case "RESULT_SCAN":
+          String resultScan = scanner.getScanResult();
+          result.success(new ReturnObject("OK", resultScan, true).toJson());
+          break;     
     }
   }
 
