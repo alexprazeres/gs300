@@ -116,16 +116,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                //try {
+                try {
                     consulta = new ArrayList < String > ();
-                    //SubLcdHelper.getInstance().sendScan();
+                    SubLcdHelper.getInstance().sendScan();
                     cmdflag = CMD_PROTOCOL_START_SCAN;
-                    //mHandler.sendEmptyMessageDelayed(MSG_REFRESH_SHOWRESULT, 300);
-                    //sendScanStatusImage("READY");
-                // } catch (SubLcdException e) {
-                //     SubLcdHelper.getInstance().release();
-                //     e.printStackTrace();
-                // }
+                    mHandler.sendEmptyMessageDelayed(MSG_REFRESH_SHOWRESULT, 300);
+                    sendScanStatusImage("READY");
+                } catch (SubLcdException e) {
+                    SubLcdHelper.getInstance().release();
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -133,15 +133,11 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     public String getScanResult(){
         isListening = true;
-        // Simulação de mudanças na lista (em um cenário real, isso viria de outra fonte)
         mainHandler.post(() -> {
             try {
-                Thread.sleep(3000); // Simula um atraso antes de adicionar um item à lista
+                Thread.sleep(1000);
                 if (isListening) {
-                    System.out.println("adicionando item");
-                    System.out.println(consulta.size());
-                    consulta.add("New Item");
-                    if (!consulta.isEmpty() && consulta.size() > 2 ) {
+                    if (!consulta.isEmpty() ) {
                         System.out.println("RETORNANDO RSULTADO ========");
                         methodChannel.invokeMethod("onListChanged", consulta);
                         stopListening();
@@ -157,6 +153,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         });
 
         return "";
+    }
+
+    public void sendScanResult(){
+         mainHandler.post(() -> {
+            try {
+                methodChannel.invokeMethod("onListChanged", consulta);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void stopListening() {
@@ -191,6 +197,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         Log.i(TAG, "datatrigger result=" + s);
                         Log.i(TAG, "datatrigger cmd=" + cmd);
                         consulta.add(s);
+                        sendScanResult();
                         sendScanStatusImage("SUCCESS");
                     }
                 }
