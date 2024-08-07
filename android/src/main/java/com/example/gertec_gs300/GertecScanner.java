@@ -203,27 +203,48 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     }
 
     public void sendScanStatusImage(String type){
-        Bitmap bp = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
+        
         switch(type){
             case "SUCCESS":
-                bp = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_success);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Bitmap bpSuccess = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_success);
+                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpSuccess, 90));
+                        } catch (SubLcdException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 500);
                 break;
             case "ERROR":
-                bp = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_error);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Bitmap bpError = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_error);
+                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpError, 90));
+                        } catch (SubLcdException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 500);
+                break;    
+            case "READY":
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Bitmap bpReady = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
+                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
+                        } catch (SubLcdException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 500);
                 break;        
         }
-        final Bitmap bpF = bp;
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpF, 90));
-                } catch (SubLcdException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 500);
     }
 
     public void sendReadyStatus(){
