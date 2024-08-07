@@ -118,11 +118,17 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             public void run() {
                 try {
                     consulta = new ArrayList < String > ();
-                    SubLcdHelper.getInstance().sendScan();
+                    if (SubLcdHelper.getInstance() != null){
+                        SubLcdHelper.getInstance().sendScan();
+                    }
                     cmdflag = CMD_PROTOCOL_START_SCAN;
                     mHandler.sendEmptyMessageDelayed(MSG_REFRESH_SHOWRESULT, 300);
                     sendScanStatusImage("READY");
+                } catch(NullPointerException e){
+                    e.printStackTrace();
+                    showToast("Erro ao capturar SCAN"+e.getMessage());
                 } catch (SubLcdException e) {
+                    showToast("ERRO AO iniciar scan");
                     SubLcdHelper.getInstance().release();
                     e.printStackTrace();
                 }
@@ -148,6 +154,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                     System.out.println("PAROU");
                 }
             } catch (InterruptedException e) {
+                showToast("ERRO AO BUSCAR RESULTADOS");
                 e.printStackTrace();
             }
         });
@@ -180,13 +187,14 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         
                     } else if (cmd == CMD_PROTOCOL_UPDATE && (s.equals("updatalogo") || s.equals("updatafilenameok") || s.equals("updatauImage") || s.equals("updataok"))) {
                         Log.i(TAG, "neglect");
+                        sendScanStatusImage("updatelog");
                     } else if (cmd == CMD_PROTOCOL_UPDATE && (s.equals("Same_version"))) {
 
                         mHandler.removeMessages(MSG_REFRESH_SHOWRESULT);
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
                         Log.i(TAG, "datatrigger result=" + s);
                         Log.i(TAG, "datatrigger cmd=" + cmd);
-                       
+                        sendScanStatusImage("neglect");
                     } else {
                         mHandler.removeMessages(MSG_REFRESH_SHOWRESULT);
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
@@ -203,48 +211,55 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     }
 
     public void sendScanStatusImage(String type){
-        Systemt.out.println("iniciar");
-        // switch(type){
-        //     case "SUCCESS":
-        //         handler.postDelayed(new Runnable() {
-        //             @Override
-        //             public void run() {
-        //                 try {
-        //                     Bitmap bpSuccess = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_success);
-        //                     SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpSuccess, 90));
-        //                 } catch (SubLcdException e) {
-        //                     e.printStackTrace();
-        //                 }
-        //             }
-        //         }, 500);
-        //         break;
-        //     case "ERROR":
-        //         handler.postDelayed(new Runnable() {
-        //             @Override
-        //             public void run() {
-        //                 try {
-        //                     Bitmap bpError = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_error);
-        //                     SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpError, 90));
-        //                 } catch (SubLcdException e) {
-        //                     e.printStackTrace();
-        //                 }
-        //             }
-        //         }, 500);
-        //         break;    
-        //     case "READY":
-        //         handler.postDelayed(new Runnable() {
-        //             @Override
-        //             public void run() {
-        //                 try {
-        //                     Bitmap bpReady = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
-        //                     SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
-        //                 } catch (SubLcdException e) {
-        //                     e.printStackTrace();
-        //                 }
-        //             }
-        //         }, 500);
-        //         break;        
-        // }
+        switch(type){
+            case "SUCCESS":
+                showToast("QRCODE ESCANEADO COM SUCESSO");
+                // handler.postDelayed(new Runnable() {
+                //     @Override
+                //     public void run() {
+                //         try {
+                //             Bitmap bpSuccess = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_success);
+                //             SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpSuccess, 90));
+                //         } catch (SubLcdException e) {
+                //             e.printStackTrace();
+                //         }
+                //     }
+                // }, 500);
+                break;
+            case "ERROR":
+                showToast("ERRO AO LER QRCODE");
+                // handler.postDelayed(new Runnable() {
+                //     @Override
+                //     public void run() {
+                //         try {
+                //             Bitmap bpError = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_error);
+                //             SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpError, 90));
+                //         } catch (SubLcdException e) {
+                //             e.printStackTrace();
+                //         }
+                //     }
+                // }, 500);
+                break;    
+            case "READY":
+                showToast("INICIANDO SCANNER");
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Bitmap bpReady = BitmapFactory.decodeResource(context.getResources(), R.drawable.qrcode_ready);
+                            SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpReady, 90));
+                        } catch(NullPointerException e){
+                            e.printStackTrace();
+                            showToast("Erro ao Exibir Imagem"+e.getMessage());
+                        } catch (SubLcdException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 500);
+            default:
+                showToast(type);    
+                break;        
+        }
     }
 
     public void sendReadyStatus(){
@@ -257,6 +272,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                             final Bitmap bpx = BitmapFactory.decodeResource(context.getResources(), imageIds[index]);
                             SubLcdHelper.getInstance().sendBitmap(SubLcdHelper.getInstance().doRotateBitmap(bpx, 90));
                         } catch (SubLcdException e) {
+                            
                             e.printStackTrace();
                         }
                         index++;
@@ -264,6 +280,14 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                 }
             }, delay * i);
         }
+    }
+
+    private void showToast(String text){
+        mainHandler.post(() -> {
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        });
     }
 
     private void cancelImageAnimation(){
