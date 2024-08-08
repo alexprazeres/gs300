@@ -132,9 +132,9 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                     sendScanStatusImage("READY");
                 } catch(NullPointerException e){
                     e.printStackTrace();
-                    showToast("Erro ao capturar SCAN"+e.getMessage());
+                    Log.i(TAG, "Erro ao capturar SCAN="+e.getMessage());
                 } catch (SubLcdException e) {
-                    showToast("ERRO AO iniciar scan");
+                    Log.i(TAG, "Erro ao capturar SCAN="+e.getMessage());
                     SubLcdHelper.getInstance().release();
                     e.printStackTrace();
                 }
@@ -149,6 +149,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             cmdflag = CMD_PROTOCOL_BMP_DISPLAY;
             mHandler.sendEmptyMessageDelayed(MSG_REFRESH_NO_SHOWRESULT, 300);
         } catch (SubLcdException e) {
+            Log.i(TAG, "Error="+e.getMessage());
             e.printStackTrace();
         }
     }
@@ -158,14 +159,8 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         Log.i(TAG, "Lendo resultado=");
         String result = sharedPref.getString("resultado", "");
         if (!TextUtils.isEmpty(result)){
-            try{
-                mainHandler.post(() -> {
-                    showToast("Resultado encontrado-Retornando");
-                });
-                return result;
-             }catch (Exception e) {
-                
-            }
+            Log.i(TAG, "retornando resultado="+result);
+            return result;
         }
         return result;
     }
@@ -188,6 +183,8 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     @Override
     public void datatrigger(String s, int cmd) {
+        Log.i(TAG, "data trigger string="+s);
+        Log.i(TAG, "data trigger cmd="+cmd);
         mainHandler.post(() -> {
             if (!TextUtils.isEmpty(s)) {
                 if (cmd == cmdflag) {
@@ -340,6 +337,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            Log.i(TAG, "handler trigger=" + msg);
             switch (msg.what) {
                 case MSG_REFRESH_SHOWRESULT:
                     isShowResult = true;
