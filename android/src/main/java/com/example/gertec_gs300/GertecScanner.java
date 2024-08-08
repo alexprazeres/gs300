@@ -158,6 +158,9 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     public String getScanResult(){
         Log.i(TAG, "Lendo resultado=");
         String result = sharedPref.getString("resultado", "");
+        if (result == null){
+            return "";
+        }
         if (!TextUtils.isEmpty(result)){
             Log.i(TAG, "retornando resultado="+result);
             return result;
