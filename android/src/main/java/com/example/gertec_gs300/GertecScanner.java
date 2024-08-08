@@ -136,33 +136,48 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             }
         });
     }
+
+    public void sendDisplayString(String value){
+
+        try {
+            SubLcdHelper.getInstance().sendText(value, Layout.Alignment.ALIGN_NORMAL, 60);
+            cmdflag = CMD_PROTOCOL_BMP_DISPLAY;
+            mHandler.sendEmptyMessageDelayed(MSG_REFRESH_NO_SHOWRESULT, 300);
+        } catch (SubLcdException e) {
+            e.printStackTrace();
+        }
+    }
     
 
     public String getScanResult(){
         isListening = true;
-        handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (times == 3){
-                            isListening = false;
-                            return;
-                        }
-                        if (isListening){
-                            sendScanResult("recebendo teste" + String.valueOf(times));
-                            times++;
-                            getScanResult();
-                        }
-                    }
-                }, 3000);
+        // handler.postDelayed(new Runnable() {
+        //             @Override
+        //             public void run() {
+        //                 if (times == 3){
+        //                     isListening = false;
+        //                     return;
+        //                 }
+        //                 if (isListening){
+        //                     sendScanResult("Resultado de teste" + String.valueOf(times));
+        //                     times++;
+        //                     getScanResult();
+        //                 }
+        //             }
+        //         }, 3000);
 
         return "";
     }
 
     public void sendScanResult(String value){
-         mainHandler.post(() -> {
-            showToast("Enviando resultado");
-            methodChannel.invokeMethod("onListChanged", value);
-        });
+        try{
+            mainHandler.post(() -> {
+                showToast("Enviando resultado:" + value);
+                methodChannel.invokeMethod("onListChanged", value);
+            });
+         }catch (Exception e) {
+            showToast("Erro ao enviar resultado"+e.getMessage());
+        }
     }
 
     private void stopListening() {
@@ -195,10 +210,10 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                     } else {
                         mHandler.removeMessages(MSG_REFRESH_SHOWRESULT);
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
-                        Log.i(TAG, "datatrigger result=" + s);
-                        Log.i(TAG, "datatrigger cmd=" + cmd);
+                        // Log.i(TAG, "datatrigger result=" + s);
+                        // Log.i(TAG, "datatrigger cmd=" + cmd);
                         showToast("Resultado: "+s);
-                        // sendScanResult(s);
+                        sendScanResult(s);
                         // sendScanStatusImage("SUCCESS");
                         // showToast(s);
                     }
