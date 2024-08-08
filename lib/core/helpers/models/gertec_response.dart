@@ -34,8 +34,8 @@ class GertecResponse {
 
   factory GertecResponse.fromMap(Map<String, dynamic> map) {
     return GertecResponse(
-      message: map['message'] as String,
-      success: map['success'] as bool,
+      message: map['message'] ?? "" as String,
+      success: map['success'] ?? true as bool,
       content: map['content'] as dynamic,
     );
   }
