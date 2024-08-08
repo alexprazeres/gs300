@@ -68,6 +68,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     private boolean isListening = false;
 
     private int cmdflag;
+    private String scanResult = "";
     private int times = 1;
     private boolean isShowResult = false;
     private Toast toast;
@@ -114,6 +115,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     }
 
     public void startScan(){
+        scanResult = "";
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -150,23 +152,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     
 
     public String getScanResult(){
-        isListening = true;
-        handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (times == 3){
-                            isListening = false;
-                            return;
-                        }
-                        if (isListening){
-                            sendScanResult("Resultado de teste" + String.valueOf(times));
-                            times++;
-                            getScanResult();
-                        }
-                    }
-                }, 3000);
-
-        return "";
+        return scanResult;
     }
 
     public void sendScanResult(String value){
@@ -213,7 +199,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         // Log.i(TAG, "datatrigger result=" + s);
                         // Log.i(TAG, "datatrigger cmd=" + cmd);
                         showToast("Resultado: "+s);
-                        sendScanResult(s);
+                        scanResult = s;
                         // sendScanStatusImage("SUCCESS");
                         // showToast(s);
                     }
