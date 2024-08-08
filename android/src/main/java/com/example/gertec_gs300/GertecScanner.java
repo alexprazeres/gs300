@@ -68,6 +68,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     private boolean isListening = false;
 
     private int cmdflag;
+    private int times = 1;
     private boolean isShowResult = false;
     private Toast toast;
     private final String TAG = "PrintService";
@@ -117,7 +118,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             @Override
             public void run() {
                 try {
-
+                    times = 0;
                     if (SubLcdHelper.getInstance() != null){
                         SubLcdHelper.getInstance().sendScan();
                     }
@@ -139,9 +140,20 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     public String getScanResult(){
         isListening = true;
-        mainHandler.post(() -> {
-                //
-        });
+        handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (times == 3){
+                            isListening = false;
+                            return;
+                        }
+                        if (isListening){
+                            sendScanResult("recebendo teste" + String.valueOf(times));
+                            times++;
+                            getScanResult();
+                        }
+                    }
+                }, 3000);
 
         return "";
     }
@@ -199,7 +211,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     public void sendScanStatusImage(String type){
         switch(type){
             case "SUCCESS":
-                showToast("QRCODE ESCANEADO COM SUCESSO");
+                showToast("QRCODE ESCANEADO COM SUCESSOX");
                 // handler.postDelayed(new Runnable() {
                 //     @Override
                 //     public void run() {
