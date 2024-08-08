@@ -64,7 +64,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             PERMISSION_WRITE_STORAGE,
             PERMISSION_READ_STORAGE
     };
-    List < String > consulta;
+
     private boolean isListening = false;
 
     private int cmdflag;
@@ -108,7 +108,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         this.context = context;
         SubLcdHelper.getInstance().init(context);
         SubLcdHelper.getInstance().SetCalBack(this::datatrigger);
-        consulta = new ArrayList < String > ();
+
         this.methodChannel = channel;
     }
 
@@ -117,7 +117,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             @Override
             public void run() {
                 try {
-                    consulta = new ArrayList < String > ();
+
                     if (SubLcdHelper.getInstance() != null){
                         SubLcdHelper.getInstance().sendScan();
                     }
@@ -140,31 +140,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     public String getScanResult(){
         isListening = true;
         mainHandler.post(() -> {
-            try {
-                Thread.sleep(1000);
-                if (isListening) {
-                    if (!consulta.isEmpty() ) {
-                        System.out.println("RETORNANDO RSULTADO ========");
-                        methodChannel.invokeMethod("onListChanged", consulta);
-                        stopListening();
-                    }else{
-                        getScanResult();
-                    }
-                }else{
-                    System.out.println("PAROU");
-                }
-            } catch (InterruptedException e) {
-                showToast("ERRO AO BUSCAR RESULTADOS");
-                e.printStackTrace();
-            }
+                //
         });
 
         return "";
     }
 
-    public void sendScanResult(){
+    public void sendScanResult(String value){
          mainHandler.post(() -> {
-            methodChannel.invokeMethod("onListChanged", consulta);
+            showToast("Enviando resultado");
+            methodChannel.invokeMethod("onListChanged", value);
         });
     }
 
@@ -200,9 +185,10 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
                         Log.i(TAG, "datatrigger result=" + s);
                         Log.i(TAG, "datatrigger cmd=" + cmd);
-                        consulta.add(s);
-                        sendScanResult();
+
+                        sendScanResult(s);
                         sendScanStatusImage("SUCCESS");
+                        showToast(s);
                     }
                 }
             }
