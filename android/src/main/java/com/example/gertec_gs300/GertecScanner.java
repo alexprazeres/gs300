@@ -45,7 +45,7 @@ import com.android.sublcdlibrary.SubLcdHelper;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-
+import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +64,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             PERMISSION_WRITE_STORAGE,
             PERMISSION_READ_STORAGE
     };
+    SharedPreferences sharedPref;
 
     private boolean isListening = false;
 
@@ -112,10 +113,12 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         SubLcdHelper.getInstance().SetCalBack(this::datatrigger);
 
         this.methodChannel = channel;
+        sharedPref =  context.getSharedPreferences("gs300", Context.MODE_PRIVATE);
     }
 
     public void startScan(){
-        scanResult = "";
+        clearResult();
+
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -152,12 +155,24 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     
 
     public String getScanResult(){
-        System.out.println("resultado::"+scanResult);
-        return scanResult;
+        Log.i(TAG, "Lendo resultado=");
+        String result = sharedPref.getString("resultado", "");
+        if (!TextUtils.isEmpty(result)){
+            try{
+                mainHandler.post(() -> {
+                    showToast("Resultado encontrado-Retornando");
+                });
+                return result;
+             }catch (Exception e) {
+                
+            }
+        }
+        return result;
     }
 
     public void sendScanResult(String value){
         try{
+            
             mainHandler.post(() -> {
                 showToast("Enviando resultado:" + value);
                 methodChannel.invokeMethod("onListChanged", value);
@@ -200,12 +215,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                     } else {
                         mHandler.removeMessages(MSG_REFRESH_SHOWRESULT);
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
-                        // Log.i(TAG, "datatrigger result=" + s);
-                        // Log.i(TAG, "datatrigger cmd=" + cmd);
-                        showToast("Resultado: "+s);
+                        Log.i(TAG, "success datatrigger result=" + s);
+                        Log.i(TAG, "success datatrigger cmd=" + cmd);
+                        showToast("Resultado====="+s);
                         scanResult = s;
                         // sendScanStatusImage("SUCCESS");
                         // showToast(s);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("resultado", s);
+                        editor.apply();
+                        showToast("Resultado gravado");
                     }
                 }
             }
@@ -217,10 +236,18 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
         mainHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                System.out.println("fakeResult");
-                datatrigger("resultado teste", CMD_PROTOCOL_START_SCAN);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("resultado", "TESTE");
+                editor.apply();
             }
         }, 4000);
+    }
+
+    public void clearResult(){
+        scanResult = "";
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("resultado", "");
+        editor.apply();
     }
 
     public void sendScanStatusImage(String type){
