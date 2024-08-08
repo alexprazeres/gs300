@@ -151,20 +151,20 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     public String getScanResult(){
         isListening = true;
-        // handler.postDelayed(new Runnable() {
-        //             @Override
-        //             public void run() {
-        //                 if (times == 3){
-        //                     isListening = false;
-        //                     return;
-        //                 }
-        //                 if (isListening){
-        //                     sendScanResult("Resultado de teste" + String.valueOf(times));
-        //                     times++;
-        //                     getScanResult();
-        //                 }
-        //             }
-        //         }, 3000);
+        handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (times == 3){
+                            isListening = false;
+                            return;
+                        }
+                        if (isListening){
+                            sendScanResult("Resultado de teste" + String.valueOf(times));
+                            times++;
+                            getScanResult();
+                        }
+                    }
+                }, 3000);
 
         return "";
     }
