@@ -116,15 +116,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     public void startScan(){
         scanResult = "";
+        fakeResult();
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     times = 0;
+                    cmdflag = CMD_PROTOCOL_START_SCAN;
                     if (SubLcdHelper.getInstance() != null){
                         SubLcdHelper.getInstance().sendScan();
                     }
-                    cmdflag = CMD_PROTOCOL_START_SCAN;
                     mHandler.sendEmptyMessageDelayed(MSG_REFRESH_SHOWRESULT, 300);
                     sendScanStatusImage("READY");
                 } catch(NullPointerException e){
@@ -152,6 +153,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
     
 
     public String getScanResult(){
+        System.out.println("resultado::"+scanResult);
         return scanResult;
     }
 
@@ -182,10 +184,12 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         Log.i(TAG, "datatrigger result=" + s);
                         Log.i(TAG, "datatrigger cmd=" + cmd);
                         sendScanStatusImage("ERROR");
+                        scanResult = "error";
                         
                     } else if (cmd == CMD_PROTOCOL_UPDATE && (s.equals("updatalogo") || s.equals("updatafilenameok") || s.equals("updatauImage") || s.equals("updataok"))) {
                         Log.i(TAG, "neglect");
                         sendScanStatusImage("updatelog");
+                        scanResult = "error";
                     } else if (cmd == CMD_PROTOCOL_UPDATE && (s.equals("Same_version"))) {
 
                         mHandler.removeMessages(MSG_REFRESH_SHOWRESULT);
@@ -193,6 +197,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         Log.i(TAG, "datatrigger result=" + s);
                         Log.i(TAG, "datatrigger cmd=" + cmd);
                         sendScanStatusImage("neglect");
+                        scanResult = "error";
                     } else {
                         mHandler.removeMessages(MSG_REFRESH_SHOWRESULT);
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
@@ -207,6 +212,16 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
             }
         });
 
+    }
+
+    public void fakeResult(){
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("fakeResult");
+                datatrigger("resultado teste", CMD_PROTOCOL_START_SCAN);
+            }
+        }, 4000);
     }
 
     public void sendScanStatusImage(String type){

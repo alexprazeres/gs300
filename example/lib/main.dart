@@ -4,11 +4,20 @@ import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gertec_gs300/core/helpers/constants.dart';
+import 'package:gertec_gs300/core/helpers/models/gertec_response.dart';
 import 'package:gertec_gs300/core/helpers/models/gertec_text.dart';
 import 'package:gertec_gs300/gertec_gs300.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+class DelayedTask {
+  void executeTaskAfterDelay(Duration delay, Function task) {
+    Future.delayed(delay, () {
+      task();
+    });
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -33,6 +42,9 @@ class _MyAppState extends State<MyApp> {
     return await readFileBytes(iconPath);
   }
 
+  DelayedTask delayedTask = DelayedTask();
+  String? qrCodeData;
+
   @override
   void initState() {
     super.initState();
@@ -42,15 +54,43 @@ class _MyAppState extends State<MyApp> {
     // });
   }
 
+  void startScan() async {
+    await _gertecPrinterPlugin.startScan();
+    qrCodeData = null;
+    listenChange();
+  }
+
   void listenChange() {
-    const methodChannel = MethodChannel('gertec/gs300');
-    _gertecPrinterPlugin.getScanResult();
-    methodChannel.setMethodCallHandler((call) async {
-      if (call.method == 'onListChanged') {
-        print("chegou??");
-        print(call.arguments);
+    try {
+      if (qrCodeData != null) {
+        return;
       }
+
+      delayedTask.executeTaskAfterDelay(Duration(seconds: 1), () async {
+        print("buscando info");
+        GertecResponse? result = await _gertecPrinterPlugin.getScanResult();
+        if (!proccessResponse(result)) {
+          listenChange();
+        }
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  bool proccessResponse(GertecResponse? data) {
+    String content = data?.content ?? "";
+    if (content.isEmpty) {
+      return false;
+    }
+
+    if (content == "error") {
+      throw "Erro ao ler";
+    }
+    setState(() {
+      qrCodeData = content;
     });
+    return true;
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -59,234 +99,33 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-            appBar: AppBar(
-              title: const Text('GERTEC printer Example'),
+      appBar: AppBar(
+        title: const Text('GERTEC printer Example'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 10,
+              ),
+              child: Text("Print binded: $printBinded"),
             ),
-            body: SingleChildScrollView(
-                child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                  ),
-                  child: Text("Print binded: $printBinded"),
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      final state = await _gertecPrinterPlugin.printerState();
-
-                      setState(() {
-                        try {
-                          printBinded = state.content;
-                        } catch (_) {
-                          printBinded = PrinterState.PRINTER_STATE_NORMAL;
-                        }
-                      });
-                    },
-                    child: const Text('check state')),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.startScan();
-                            listenChange();
-                          },
-                          child: const Text('Scanner')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printQrcode(
-                                text: 'EU AMO FLUTTER', align: 20, width: 100);
-                          },
-                          child: const Text('Print qrCode')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printBarCode(
-                                text: '1234567890',
-                                width: 100,
-                                type: BarCodeType.BARCODE_TYPE_JAN13,
-                                textPostion: BarCodeTextPosition.TEXT_NONE);
-                          },
-                          child: const Text('Print barCode')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.line();
-                          },
-                          child: const Text('Print line')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.wrap(len: 10);
-                          },
-                          child: const Text('Wrap line')),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(
-                                GertecText(text: 'EU AMO FLUTTER', bold: true));
-                          },
-                          child: const Text('Bold Text')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(GertecText(
-                                text: 'EU AMO FLUTTER',
-                                fontSize: FontSize.SMALL));
-                          },
-                          child: const Text('Small font')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(GertecText(
-                                text: 'EU AMO FLUTTER',
-                                fontSize: FontSize.NORMAL));
-                          },
-                          child: const Text('Normal font')),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(GertecText(
-                                text: 'EU AMO FLUTTER',
-                                fontSize: FontSize.LARGE));
-                          },
-                          child: const Text('Large font')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(GertecText(
-                                text: 'EU AMO FLUTTER',
-                                fontSize: FontSize.XLARGE));
-                          },
-                          child: const Text('Very large font')),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(GertecText(
-                                text: 'EU AMO FLUTTER',
-                                algin: PrintAlign.LEFT));
-                          },
-                          child: const Text('Align right')),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _gertecPrinterPlugin.printText(GertecText(
-                                text: 'EU AMO FLUTTER',
-                                algin: PrintAlign.RIGHT));
-                          },
-                          child: const Text('Align left')),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _gertecPrinterPlugin.printText(GertecText(
-                              text: 'EU AMO FLUTTER',
-                              algin: PrintAlign.CENTER));
-                        },
-                        child: const Text('Align center'),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          Uint8List byte = await _getImageFromAsset(
-                              'assets/images/dash.jpeg');
-
-                          await _gertecPrinterPlugin.printImage(
-                              image: byte,
-                              align: PrintAlign.LEFT,
-                              paper: GertecPaperSize.PAPER_80);
-                        },
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              'assets/images/dash.jpeg',
-                              width: 100,
-                            ),
-                            const Text('Print this image from asset!')
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          String url =
-                              'https://jacodouhoje.dev/wp-content/uploads/2023/11/cropped-wordpress_logo_transparent_512x512.png';
-                          // convert image to Uint8List format
-                          Uint8List byte =
-                              (await NetworkAssetBundle(Uri.parse(url))
-                                      .load(url))
-                                  .buffer
-                                  .asUint8List();
-                          await _gertecPrinterPlugin.printImage(
-                            image: byte,
-                            align: PrintAlign.LEFT,
-                            paper: GertecPaperSize.PAPER_80,
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Image.network(
-                              'https://jacodouhoje.dev/wp-content/uploads/2023/11/cropped-wordpress_logo_transparent_512x512.png',
-                              width: 200,
-                            ),
-                            const Text('Print this image from WEB!')
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                            onPressed: () async {
-                              await _gertecPrinterPlugin
-                                  .cutPaper(CutPaperType.FULL);
-                            },
-                            child: const Text('CUT PAPER')),
-                      ]),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                            onPressed: () async {
-                              final List<int> escPos = await _customEscPos();
-                              await _gertecPrinterPlugin
-                                  .printRaw(Uint8List.fromList(escPos));
-                            },
-                            child: const Text('Custom ESC/POS to print')),
-                      ]),
-                ),
-              ],
-            ))));
+            ElevatedButton(
+                onPressed: () => startScan(), child: const Text('Scanner')),
+            qrCodeData != null
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      qrCodeData ?? "",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  )
+                : const SizedBox()
+          ],
+        ),
+      ),
+    ));
   }
 }
 
