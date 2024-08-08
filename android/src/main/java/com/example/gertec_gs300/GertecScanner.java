@@ -116,7 +116,7 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
 
     public void startScan(){
         scanResult = "";
-        fakeResult();
+
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
