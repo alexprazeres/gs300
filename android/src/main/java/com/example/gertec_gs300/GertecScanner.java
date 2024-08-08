@@ -185,10 +185,10 @@ public class GertecScanner implements SubLcdHelper.VuleCalBack {
                         mHandler.removeMessages(MSG_REFRESH_NO_SHOWRESULT);
                         Log.i(TAG, "datatrigger result=" + s);
                         Log.i(TAG, "datatrigger cmd=" + cmd);
-
-                        sendScanResult(s);
-                        sendScanStatusImage("SUCCESS");
-                        showToast(s);
+                        showToast("Resultado: "+s);
+                        // sendScanResult(s);
+                        // sendScanStatusImage("SUCCESS");
+                        // showToast(s);
                     }
                 }
             }
